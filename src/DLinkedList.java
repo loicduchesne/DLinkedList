@@ -205,6 +205,67 @@ public class DLinkedList {
         }
     }
 
+    // TODO write insertionSort() function.
+
+    /**
+     * This method detects if there is any .prev or .next accidentally assigned to create a loop in the list.
+     * It is a basic implementation of Floyd's Tortoise And Hare Algorithm.
+     * @return Returns true if there is a loop, returns false if there is no loop.
+     * @author Loic Duchesne
+     */
+    public boolean detectLoop() {
+        SNode pointerSlow = head;
+        SNode pointerFast = head.next;
+
+        // Edge case if pointer is null (e.g. list is empty).
+        if (pointerSlow == null) {
+            return false;
+        } else {
+            // Integer used to slow slowPointer down.
+            int i = 0;
+
+            // If the fast pointer reaches a null, that means that it is at a boundary, therefore no loop.
+            while (pointerFast.next != null) {
+                // Move fast pointer to the next node.
+                pointerFast = pointerFast.next;
+
+                // If at any instance, the fast pointer reaches the slow pointer, there is a loop in the .next pointers.
+                if (pointerFast == pointerSlow) {
+                    return true;
+                }
+                // Pointer slow moves to the .next node 2 times slower than pointer fast.
+                if (i % 2 == 0) {
+                    pointerSlow = pointerSlow.next;
+                    i = 0;
+                }
+                i++;
+            }
+            // There is no loop in the .next pointers.
+            // Reinitialize the values to check for a loop in the .prev pointers.
+            i = 0;
+            pointerSlow = pointerFast;
+            pointerFast = pointerSlow.prev;
+
+            // If the fast pointer reaches a null, that means that it is at a boundary, therefore no loop.
+            while (pointerFast.prev != null) {
+                // Move fast pointer to the prev node.
+                pointerFast = pointerFast.prev;
+
+                // If at any instance, the fast pointer reaches the slow pointer, there is a loop in the .prev pointers.
+                if (pointerFast == pointerSlow) {
+                    return true;
+                }
+                // Pointer slow moves to the .prev node 2 times slower than pointer fast.
+                if (i % 2 == 0) {
+                    pointerSlow = pointerSlow.prev;
+                    i = 0;
+                }
+                i++;
+            }
+            // Return false if there is no loop.
+            return false;
+        }
+    }
 
     // Print methods & print debugs.
 
