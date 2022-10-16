@@ -128,7 +128,7 @@ public class DLinkedList {
     }
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest). It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by size (from smallest to largest) using the bubble sort algorithm. It uses the private integer size stored in {@link Shape}.
      * @return Returns true if the bubbleSort loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -152,6 +152,54 @@ public class DLinkedList {
                 }
                 // Move the current pointer to the next element.
                 current = current.next;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * This method sorts the current Linked List by size (from smallest to largest) using the selection sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * @return Returns true if the selectionSort() loops occurs, returns false if it does not reach the loop segment.
+     * @author Loic Duchesne
+     */
+    public boolean selectionSort() {
+        // Edge case handling. No sorting if size is 1 or less.
+        if (size <= 1) {
+            return false;
+        } else {
+            SNode pointer = head; // Points to the current position for the loop.
+            SNode sortedIndex = head; // Node right after the sorted list.
+            int unsortedSize = size; // Amount of unsorted elements left.
+
+            // While the sorted index is not at the end.
+            while (sortedIndex.next != null) {
+                SNode smallest = sortedIndex; // Smallest node in the current unsorted set of nodes.
+
+                // Runs a loop n times of how many elements n are left.
+                for (int i=0; i<unsortedSize; i++) {
+
+                    // If the pointer node size is smaller than the current registered smallest, reassign smallest to pointer.
+                    if (pointer.element.getSize() < smallest.element.getSize()) {
+                        smallest = pointer;
+                    }
+
+                    // When the pointer reach the end of the unsorted list, push the smallest element into sorted list & adjust other conditions.
+                    if (pointer.next == null) {
+                        // Make the unsorted size smaller by 1.
+                        unsortedSize--;
+
+                        // Push the smallest element in the sorted list by swapping that element with the sortedIndex (node right after sorted list).
+                        swapElements(smallest, sortedIndex);
+                        // Set the sorted index node to the next one.
+                        sortedIndex = sortedIndex.next;
+
+                        // Reset pointer and smallest to their origin values.
+                        pointer = sortedIndex;
+                        smallest = sortedIndex;
+                    }
+                    // Move the pointer to its next element.
+                    pointer = pointer.next;
+                }
             }
             return true;
         }
