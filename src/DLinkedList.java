@@ -11,7 +11,31 @@ public class DLinkedList {
         Shape element;
         SNode next;
         SNode prev;
+
+        /**
+         * Overrides the .equals method in Java Objects. Compare if an SNode is equal to another SNode.
+         * @param obj Object to compare with this SNode.
+         * @return Return false if objects are not equal, return true if they are.
+         */
+        @Override
+        public boolean equals(Object obj) {
+            // Edge case can compare two null objects.
+            if (obj == null) {
+                return false;
+            } else if (!(obj instanceof SNode)) {
+                throw new IllegalArgumentException("Object to compare must be of type SNode");
+            } else {
+                if (this.next == ((SNode) obj).next && this.prev == ((SNode) obj).prev) {
+                    if (this.element.getShapeName().equals(((SNode) obj).element.getShapeName())) {
+                        return this.element.getSize() == ((SNode) obj).element.getSize();
+                    }
+                }
+            }
+            return false;
+        }
     }
+
+    // ELEMENT OPERATIONS (PUBLIC)
 
     public void addFirst(Shape elementToAdd) {
         SNode newNode = new SNode();
@@ -40,7 +64,7 @@ public class DLinkedList {
 
         // Edge cases
         if (size == 0 ) {
-            throw  new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
+            throw new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
         }
         if (size == 1) {
             head = null;
@@ -89,7 +113,7 @@ public class DLinkedList {
 
         // Edge cases
         if (size == 0 ) {
-            throw  new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
+            throw new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
         }
         if (size == 1) {
             head = null;
@@ -109,6 +133,8 @@ public class DLinkedList {
         return temp.element;
     }
 
+    // NODE OPERATIONS (PRIVATE)
+
     /**
      * This method swaps the elements between two different nodes. Complements switchNode.
      * @param n1 The first input.
@@ -126,6 +152,133 @@ public class DLinkedList {
         n1.element = n2.element;
         n2.element = temp;
     }
+
+    /**
+     * This method moves a node between two nodes "nodeBefore" and "nodeAfter". Handles edge cases if you want to move a node to the head or tail.
+     * The two node pointers must be adjacent to each other and in their proper orders.
+     * @param nodeToMove The node that you want to move.
+     * @param nodeBefore The node before the new location. Write "null" if you want to move the node before the head.
+     * @param nodeAfter The node after the new location. Write "null" if you want to move the node after the tail.
+     * <br> Note: You cannot input to both nodeBefore and nodeAfter "null". They are mutually exclusive and onlu one "null" is permitted.
+     */
+    private boolean moveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
+        if (size == 0) {
+            throw new NullPointerException("Cannot move Node because there is no elements in the list");
+        } else if (size < 3) {
+            throw new IllegalArgumentException("There is not enough elements in the list. There must be at least three elements to move a Node");
+        } else if (nodeToMove == nodeBefore || nodeToMove == nodeAfter) {
+            return false;
+        } else if (nodeToMove.prev == nodeBefore && nodeToMove.next == nodeAfter) {
+            return false;
+        } else if (nodeBefore == null && nodeAfter == null) {
+            throw new IllegalArgumentException("Both nodeBefore and nodeAfter are null. Only one can be null.");
+        } else if (nodeBefore == null) {
+            removeNode(nodeToMove);
+            addFirst(nodeToMove.element);
+            return true;
+        } else if (nodeAfter == null) {
+            removeNode(nodeToMove);
+            addLast(nodeToMove.element);
+            return true;
+        } else if (nodeBefore.next == nodeAfter && nodeAfter.prev == nodeBefore) { // Moves the node if the two nodes are adjacent.
+            // Check if current node is head or tail.
+            boolean isHead = false;
+            if (nodeToMove.prev == null) {
+                nodeToMove.next = head;
+                head.prev = null;
+                isHead = true;
+            } else {
+                nodeToMove.prev.next = nodeToMove.next;
+            }
+            if (nodeToMove.next == null) {
+                nodeToMove.prev = tail;
+                tail.next = null;
+            } else if (!isHead) {
+                nodeToMove.next.prev = nodeToMove.prev;
+            }
+
+            // Connect the new node .prev and .next to their new neighbours.
+            nodeToMove.prev = nodeBefore;
+            nodeToMove.next = nodeAfter;
+
+            // Reconnect the nodeBefore .next and nodeAfter .prev to the newNode.
+            nodeBefore.next = nodeToMove;
+            nodeAfter.prev = nodeToMove;
+
+            return true;
+        } else {
+            throw new IllegalArgumentException("nodeBefore and nodeAfter must be adjacent to each others and be in the correct order.");
+        }
+    }
+
+    /**
+     * This method removes a node if it is present in the list.
+     * @param nodeToRemove This is the node that you want to remove.
+     * @return Returns the removed node if it was successfully removed. Returns null if it was not.
+     */
+    private Shape removeNode(SNode nodeToRemove) {
+        if (size == 0) {
+            throw new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
+        } else if (size == 1) {
+            head = null;
+            tail = null;
+
+            size--;
+            return nodeToRemove.element;
+        } /*else if (!nodeInList(nodeToRemove)) {
+            return null;
+        }*/ else if (nodeToRemove == null) {
+            return null;
+        } else if (nodeToRemove == head) {
+            removeFirst();
+            return nodeToRemove.element;
+        } else if (nodeToRemove == tail) {
+            removeLast();
+            return nodeToRemove.element;
+        } else {
+            // Connects the previous and next node together while disconnecting them from the node to remove.
+            nodeToRemove.next.prev = nodeToRemove.prev;
+            nodeToRemove.prev.next = nodeToRemove.next;
+
+            // Sets the .prev and .next from the node to remove both to null (unnecessary but keeping as proof of concept).
+            nodeToRemove.prev = null;
+            nodeToRemove.next = null;
+
+            // Reduce the size of the list.
+            size--;
+
+            return nodeToRemove.element;
+        }
+    }
+
+    /**
+     * This function checks in the list if a node is present.
+     * @param nodeToCheck The node to check if it is in the list.
+     * @return Return true if there is an equal node in the list, returns false if not.
+     */
+    private boolean nodeInList(SNode nodeToCheck) {
+        if (size == 0) {
+            return false;
+        } if (size == 1) {
+            return nodeToCheck.equals(head);
+        } else {
+            SNode pointer = head;
+            boolean checkInList = true;
+
+            while (pointer != null) {
+
+                if (nodeToCheck.equals(pointer)) {
+                    return true;
+                }
+
+                pointer = pointer.next;
+            }
+            return false;
+        }
+    }
+
+
+    // SORT OPERATIONS
 
     /**
      * This method sorts the current Linked List by size (from smallest to largest) using the bubble sort algorithm. It uses the private integer size stored in {@link Shape}.
@@ -205,7 +358,66 @@ public class DLinkedList {
         }
     }
 
-    // TODO write insertionSort() function.
+    /**
+     * This method sorts the current Linked List by size (from smallest to largest) using the insertion sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * @return Returns true if the insertionSort() loops occurs, returns false if it does not reach the loop segment.
+     * @author Loic Duchesne
+     */
+    public boolean insertionSort() {
+        // Edge case handling. No sorting if size is 1 or less.
+        if (size <= 1) {
+            return false;
+        } else {
+            SNode sortedIndex = head.next;
+            SNode current = head.next;
+            SNode pointer = sortedIndex.prev;
+            int sortedSize = 1;
+
+            while (sortedSize < size) {
+                boolean compareSortedCurrent = true;
+
+                // Built-in debug to detect infinite loops.
+                if (detectLoop()) {
+                    throw new RuntimeException("Infinite loop.");
+                }
+
+                while (compareSortedCurrent) {
+                    if (pointer == null) {
+                        moveNode(current, null, head);
+
+                        sortedSize++;
+
+                        compareSortedCurrent = false;
+                    } else if (pointer.element.getSize() <= current.element.getSize()) {
+                        moveNode(current, pointer, pointer.next);
+
+                        sortedSize++;
+                         // Compare current is now false resetting the loop.
+                        compareSortedCurrent = false;
+                    } else {
+                        pointer = pointer.prev;
+                    }
+                }
+                // Move the sortedIndex and the current to the next node.
+                sortedIndex = head.next;
+                for (int i=1; i<sortedSize; i++) {
+                    sortedIndex = sortedIndex.next;
+                }
+
+                if (sortedIndex == null) {
+                    pointer = tail.prev;
+                    current = tail;
+                    return true;
+                } else {
+                    pointer = sortedIndex.prev;
+                    current = sortedIndex;
+                }
+            }
+            return true;
+        }
+    }
+
+    // BUG DETECTION
 
     /**
      * This method detects if there is any .prev or .next accidentally assigned to create a loop in the list.
@@ -267,7 +479,7 @@ public class DLinkedList {
         }
     }
 
-    // Print methods & print debugs.
+    // PRINT METHODS & DEBUGS
 
     public void printElements() {
         SNode pointer = head;
@@ -286,7 +498,7 @@ public class DLinkedList {
         SNode pointer = head;
 
         System.out.println("Object sizes from 0 to n index:");
-        while (pointer != null) {
+        for (int i=0; i<size; i++) {
             System.out.println(pointer.element.getSize());
 
             pointer = pointer.next;
