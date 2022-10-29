@@ -160,6 +160,7 @@ public class DLinkedList {
      * @param nodeBefore The node before the new location. Write "null" if you want to move the node before the head.
      * @param nodeAfter The node after the new location. Write "null" if you want to move the node after the tail.
      * <br> Note: You cannot input to both nodeBefore and nodeAfter "null". They are mutually exclusive and onlu one "null" is permitted.
+     * @return Returns true if it successfully moved the node. Return false if it did not move the node.
      */
     private boolean moveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
         if (size == 0) {
@@ -214,7 +215,7 @@ public class DLinkedList {
     /**
      * This method removes a node if it is present in the list.
      * @param nodeToRemove This is the node that you want to remove.
-     * @return Returns the removed node if it was successfully removed. Returns null if it was not.
+     * @return Returns the removed node element if it was successfully removed. Returns null if it was not.
      */
     private Shape removeNode(SNode nodeToRemove) {
         if (size == 0) {
