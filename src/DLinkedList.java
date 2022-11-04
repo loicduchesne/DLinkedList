@@ -157,58 +157,107 @@ public class DLinkedList {
      * This method moves a node between two nodes "nodeBefore" and "nodeAfter". Handles edge cases if you want to move a node to the head or tail.
      * The two node pointers must be adjacent to each other and in their proper orders.
      * @param nodeToMove The node that you want to move.
-     * @param nodeBefore The node before the new location. Write "null" if you want to move the node before the head.
-     * @param nodeAfter The node after the new location. Write "null" if you want to move the node after the tail.
-     * <br> Note: You cannot input to both nodeBefore and nodeAfter "null". They are mutually exclusive and onlu one "null" is permitted.
+     * @param boundaryNode The node in which we want to move the nodeToMove to one of its sides.
+     * @param moveRight True if you want the algorithm to move the node by searching in the Right direction. False if you want it to move it by searching in the Left direction.
+     * @param addLeft True if you want the node to be added on the left of the boundaryNode. False if you want it to be added to the right of the boundaryNode.
+     * <br> Note: If you leave moveRight and addLeft blank, their default values are both True. You cannot leave only 1 blank.
      * @return Returns true if it successfully moved the node. Return false if it did not move the node.
      */
-    private boolean moveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
+    private boolean moveNode(SNode nodeToMove, SNode boundaryNode, boolean moveRight, boolean addLeft) {
         if (size == 0) {
             throw new NullPointerException("Cannot move Node because there is no elements in the list");
-        } else if (size < 3) {
-            throw new IllegalArgumentException("There is not enough elements in the list. There must be at least three elements to move a Node");
-        } else if (nodeToMove == nodeBefore || nodeToMove == nodeAfter) {
-            return false;
-        } else if (nodeToMove.prev == nodeBefore && nodeToMove.next == nodeAfter) {
-            return false;
-        } else if (nodeBefore == null && nodeAfter == null) {
-            throw new IllegalArgumentException("Both nodeBefore and nodeAfter are null. Only one can be null.");
-        } else if (nodeBefore == null) {
-            removeNode(nodeToMove);
-            addFirst(nodeToMove.element);
-            return true;
-        } else if (nodeAfter == null) {
-            removeNode(nodeToMove);
-            addLast(nodeToMove.element);
-            return true;
-        } else if (nodeBefore.next == nodeAfter && nodeAfter.prev == nodeBefore) { // Moves the node if the two nodes are adjacent.
-            // Check if current node is head or tail.
-            boolean isHead = false;
-            if (nodeToMove.prev == null) {
-                nodeToMove.next = head;
-                head.prev = null;
-                isHead = true;
-            } else {
-                nodeToMove.prev.next = nodeToMove.next;
+        } else if (nodeToMove == null || boundaryNode == null) {
+            throw new IllegalArgumentException("nodeToMove or boundaryNode must both be non-null values");
+        }
+        SNode originalNode = nodeToMove;
+
+        if (moveRight) {
+            while (true) {
+                // If the node arrives at the tail.
+                if (nodeToMove.next == null) {
+                    addFirst(nodeToMove.element);
+                    removeLast();
+
+                    nodeToMove = head;
+                }
+
+                // If it hits the boundary node, add to the left of that node;
+                if (nodeToMove.next == boundaryNode) {
+                    if (!addLeft) { // If we want to add on the right of the boundary node.
+                        swapElements(nodeToMove, nodeToMove.next);
+                        return true;
+                    }
+                    return true;
+                }
+                // Move the node to the next one.
+                swapElements(nodeToMove, nodeToMove.next);
+                nodeToMove = nodeToMove.next; //
+
+                // Edge case if boundaryNode not in the list.
+                if (nodeToMove == originalNode) {
+                    throw new RuntimeException("boundaryNode must be in the list.");
+                }
             }
-            if (nodeToMove.next == null) {
-                nodeToMove.prev = tail;
-                tail.next = null;
-            } else if (!isHead) {
-                nodeToMove.next.prev = nodeToMove.prev;
-            }
-
-            // Connect the new node .prev and .next to their new neighbours.
-            nodeToMove.prev = nodeBefore;
-            nodeToMove.next = nodeAfter;
-
-            // Reconnect the nodeBefore .next and nodeAfter .prev to the newNode.
-            nodeBefore.next = nodeToMove;
-            nodeAfter.prev = nodeToMove;
-
-            return true;
         } else {
-            throw new IllegalArgumentException("nodeBefore and nodeAfter must be adjacent to each others and be in the correct order.");
+            while (true) {
+                // If the node arrives at the head.
+                if (nodeToMove.prev == null) {
+                    addLast(nodeToMove.element);
+                    removeFirst();
+
+                    nodeToMove = tail;
+                }
+
+                // If it hits the boundary node, add to the left of that node;
+                if (nodeToMove.prev == boundaryNode) {
+                    if (addLeft) { // If we want to add on the left of the boundary node.
+                        swapElements(nodeToMove, nodeToMove.next);
+                        return true;
+                    }
+                    return true;
+                }
+                // Move the node to the next one.
+                swapElements(nodeToMove, nodeToMove.prev);
+                nodeToMove = nodeToMove.prev; //
+
+                // Edge case if boundaryNode not in the list.
+                if (nodeToMove == originalNode) {
+                    throw new RuntimeException("boundaryNode must be in the list.");
+                }
+            }
+        }
+    }
+
+    // Second constructor for moveNode.
+    private boolean moveNode(SNode nodeToMove, SNode boundaryNode) {
+        if (size == 0) {
+            throw new NullPointerException("Cannot move Node because there is no elements in the list");
+        } else if (nodeToMove == null || boundaryNode == null) {
+            throw new IllegalArgumentException("nodeToMove or boundaryNode must both be non-null values");
+        }
+        SNode originalNode = nodeToMove;
+
+        while (true) {
+            // If the node arrives at the tail.
+            if (nodeToMove.next == null) {
+                addFirst(nodeToMove.element);
+                removeLast();
+
+                nodeToMove = head;
+            }
+
+            // If it hits the boundary node, add to the left of that node;
+            if (nodeToMove.next == boundaryNode) {
+                return true;
+            }
+            // Move the node to the next one.
+            swapElements(nodeToMove, nodeToMove.next);
+            nodeToMove = nodeToMove.next; //
+
+            // Edge case if boundaryNode not in the list.
+            if (nodeToMove == originalNode) {
+                throw new RuntimeException("boundaryNode must be in the list.");
+            }
         }
     }
 
@@ -368,55 +417,31 @@ public class DLinkedList {
         // Edge case handling. No sorting if size is 1 or less.
         if (size <= 1) {
             return false;
-        } else {
-            SNode sortedIndex = head.next;
-            SNode current = head.next;
-            SNode pointer = sortedIndex.prev;
-            int sortedSize = 1;
-
-            while (sortedSize < size) {
-                boolean compareSortedCurrent = true;
-
-                // Built-in debug to detect infinite loops.
-                if (detectLoop()) {
-                    throw new RuntimeException("Infinite loop.");
-                }
-
-                while (compareSortedCurrent) {
-                    if (pointer == null) {
-                        moveNode(current, null, head);
-
-                        sortedSize++;
-
-                        compareSortedCurrent = false;
-                    } else if (pointer.element.getSize() <= current.element.getSize()) {
-                        moveNode(current, pointer, pointer.next);
-
-                        sortedSize++;
-                         // Compare current is now false resetting the loop.
-                        compareSortedCurrent = false;
-                    } else {
-                        pointer = pointer.prev;
-                    }
-                }
-                // Move the sortedIndex and the current to the next node.
-                sortedIndex = head.next;
-                for (int i=1; i<sortedSize; i++) {
-                    sortedIndex = sortedIndex.next;
-                }
-
-                if (sortedIndex == null) {
-                    pointer = tail.prev;
-                    current = tail;
-                    return true;
-                } else {
-                    pointer = sortedIndex.prev;
-                    current = sortedIndex;
-                }
-            }
-            return true;
         }
+        // Set the first element in the unsorted list as the first element in the sorted list.
+        SNode sortedIndex = head.next;
+        SNode current = head.next;
+        int sortedSize = 1;
+
+        // Iterate over all the n elements.
+        while (sortedSize < size) {
+
+            // Iterate over the sorted elements size. Prevents null pointer.
+            for (int i=0; i < sortedSize; i++) {
+                if (current.prev == null || current.prev.element.getSize() <= current.element.getSize()) {
+                    break; // Break if at the head or if it finds an element smaller in the sorted elements.
+                }
+                swapElements(current, current.prev); // Swap the current element to its previous (until find match).
+                current = current.prev; // Move the current pointer to the previous.
+            }
+            sortedIndex = sortedIndex.next;
+            current = sortedIndex;
+
+            sortedSize++;
+        }
+        return true;
     }
+
 
     // BUG DETECTION
 
@@ -518,5 +543,121 @@ public class DLinkedList {
             pointer = pointer.next;
         }
         System.out.println("----------------------------");
+    }
+
+    // DEPRECATED METHODS
+    // *These are broken/old methods that are either not working or not implemented properly. Keeping them for archive purposes.
+    // **I was very sleep-deprived when I wrote those.
+
+    /**
+     * moveNode().
+     * THIS METHOD IS DEPRECATED
+     */
+    private boolean DEPRECATEDmoveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
+        if (size == 0) {
+            throw new NullPointerException("Cannot move Node because there is no elements in the list");
+        } else if (size < 3) {
+            throw new IllegalArgumentException("There is not enough elements in the list. There must be at least three elements to move a Node");
+        } else if (nodeToMove == nodeBefore || nodeToMove == nodeAfter) {
+            return false;
+        } else if (nodeToMove.prev == nodeBefore && nodeToMove.next == nodeAfter) {
+            return false;
+        } else if (nodeBefore == null && nodeAfter == null) {
+            throw new IllegalArgumentException("Both nodeBefore and nodeAfter are null. Only one can be null.");
+        } else if (nodeBefore == null) {
+            removeNode(nodeToMove);
+            addFirst(nodeToMove.element);
+            return true;
+        } else if (nodeAfter == null) {
+            removeNode(nodeToMove);
+            addLast(nodeToMove.element);
+            return true;
+        } else if (nodeBefore.next == nodeAfter && nodeAfter.prev == nodeBefore) { // Moves the node if the two nodes are adjacent.
+            // Check if current node is head or tail.
+            boolean isHead = false;
+            if (nodeToMove.prev == null) {
+                nodeToMove.next = head;
+                head.prev = null;
+                isHead = true;
+            } else {
+                nodeToMove.prev.next = nodeToMove.next;
+            }
+            if (nodeToMove.next == null) {
+                nodeToMove.prev = tail;
+                tail.next = null;
+            } else if (!isHead) {
+                nodeToMove.next.prev = nodeToMove.prev;
+            }
+
+            // Connect the new node .prev and .next to their new neighbours.
+            nodeToMove.prev = nodeBefore;
+            nodeToMove.next = nodeAfter;
+
+            // Reconnect the nodeBefore .next and nodeAfter .prev to the newNode.
+            nodeBefore.next = nodeToMove;
+            nodeAfter.prev = nodeToMove;
+
+            return true;
+        } else {
+            throw new IllegalArgumentException("nodeBefore and nodeAfter must be adjacent to each others and be in the correct order.");
+        }
+    }
+
+    /**
+     * insertionSort().
+     * THIS METHOD IS DEPRECATED
+     */
+    private boolean DEPRECATEDinsertionSort() {
+        // Edge case handling. No sorting if size is 1 or less.
+        if (size <= 1) {
+            return false;
+        } else {
+            SNode sortedIndex = head.next;
+            SNode current = head.next;
+            SNode pointer = sortedIndex.prev;
+            int sortedSize = 1;
+
+            while (sortedSize < size) {
+                boolean compareSortedCurrent = true;
+
+                // Built-in debug to detect infinite loops.
+                if (detectLoop()) {
+                    throw new RuntimeException("Infinite loop.");
+                }
+
+                while (compareSortedCurrent) {
+                    if (pointer == null) {
+                        moveNode(current, head, false, true);
+
+                        sortedSize++;
+
+                        compareSortedCurrent = false;
+                    } else if (pointer.element.getSize() <= current.element.getSize()) {
+                        moveNode(current, pointer, false, false);
+
+                        sortedSize++;
+                        // Compare current is now false resetting the loop.
+                        compareSortedCurrent = false;
+                    } else {
+                        pointer = pointer.prev;
+                    }
+                }
+                // Move the sortedIndex and the current to the next node.
+                sortedIndex = head.next;
+                for (int i=1; i<sortedSize; i++) {
+                    sortedIndex = sortedIndex.next;
+                }
+
+                if (sortedIndex == null) {
+                    pointer = tail.prev;
+                    current = tail;
+                    return true;
+                } else {
+                    pointer = sortedIndex.prev;
+                    current = sortedIndex;
+                }
+            }
+            return true;
+        }
     }
 }
