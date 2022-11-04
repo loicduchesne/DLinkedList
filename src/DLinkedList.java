@@ -550,9 +550,14 @@ public class DLinkedList {
     // **I was very sleep-deprived when I wrote those.
 
     /**
-     * moveNode().
-     * THIS METHOD IS DEPRECATED
+     * This method moves a node between two nodes "nodeBefore" and "nodeAfter". Handles edge cases if you want to move a node to the head or tail.
+     * The two node pointers must be adjacent to each other and in their proper orders.
+     * @param nodeToMove The node that you want to move.
+     * @param nodeBefore The node before the new location. Write "null" if you want to move the node before the head.
+     * @param nodeAfter The node after the new location. Write "null" if you want to move the node after the tail.
+     * @deprecated As of 2022/11/04, because it was inefficient and buggy. Use {@link #moveNode(SNode, SNode)} instead.
      */
+    @Deprecated
     private boolean DEPRECATEDmoveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
         if (size == 0) {
             throw new NullPointerException("Cannot move Node because there is no elements in the list");
@@ -604,9 +609,11 @@ public class DLinkedList {
     }
 
     /**
-     * insertionSort().
-     * THIS METHOD IS DEPRECATED
+     * This method sorts the current Linked List by size (from smallest to largest) using the insertion sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * @return Returns true if the insertionSort() loops occurs, returns false if it does not reach the loop segment.
+     * @deprecated As of 2022/11/04, because it was inefficient and prone to errors. Use {@link #insertionSort()} instead.
      */
+    @Deprecated
     private boolean DEPRECATEDinsertionSort() {
         // Edge case handling. No sorting if size is 1 or less.
         if (size <= 1) {
