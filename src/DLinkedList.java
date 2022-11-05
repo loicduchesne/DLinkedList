@@ -154,8 +154,7 @@ public class DLinkedList {
     }
 
     /**
-     * This method moves a node between two nodes "nodeBefore" and "nodeAfter". Handles edge cases if you want to move a node to the head or tail.
-     * The two node pointers must be adjacent to each other and in their proper orders.
+     * This method moves a node beside a boundary node. The behaviour of the algorithm can be specified using the extra boolean parameters.
      * @param nodeToMove The node that you want to move.
      * @param boundaryNode The node in which we want to move the nodeToMove to one of its sides.
      * @param moveRight True if you want the algorithm to move the node by searching in the Right direction. False if you want it to move it by searching in the Left direction.
