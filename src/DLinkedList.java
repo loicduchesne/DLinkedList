@@ -7,6 +7,9 @@ public class DLinkedList {
     private SNode head;
     private SNode tail;
     private int size;
+
+    // True if the current list is sorted. False if it is not.
+    private boolean isSorted;
     private class SNode {
         Shape element;
         SNode next;
@@ -57,6 +60,7 @@ public class DLinkedList {
         head = newNode;
 
         size++;
+        isSorted = false;
     }
 
     public Shape removeFirst() {
@@ -106,6 +110,7 @@ public class DLinkedList {
             newNode.prev = pointer;
         }
         size ++;
+        isSorted = false;
     }
 
     public Shape removeLast() {
@@ -151,6 +156,8 @@ public class DLinkedList {
         // Swapping the elements.
         n1.element = n2.element;
         n2.element = temp;
+
+        isSorted = false;
     }
 
     /**
@@ -190,12 +197,13 @@ public class DLinkedList {
                 }
                 // Move the node to the next one.
                 swapElements(nodeToMove, nodeToMove.next);
-                nodeToMove = nodeToMove.next; //
+                nodeToMove = nodeToMove.next;
 
                 // Edge case if boundaryNode not in the list.
                 if (nodeToMove == originalNode) {
                     throw new RuntimeException("boundaryNode must be in the list.");
                 }
+                isSorted = false;
             }
         } else {
             while (true) {
@@ -223,6 +231,7 @@ public class DLinkedList {
                 if (nodeToMove == originalNode) {
                     throw new RuntimeException("boundaryNode must be in the list.");
                 }
+                isSorted = false;
             }
         }
     }
@@ -257,6 +266,48 @@ public class DLinkedList {
             if (nodeToMove == originalNode) {
                 throw new RuntimeException("boundaryNode must be in the list.");
             }
+            isSorted = false;
+        }
+    }
+
+    /**
+     * This method returns the current Doubly Linked List with its nodes stored into an array.
+     */
+    private SNode[] toArray() {
+        // Edge case.
+        if (head == null) {
+            throw new ArrayIndexOutOfBoundsException("There is currently no nodes in the list.");
+        }
+        SNode[] array = new SNode[size];
+
+        SNode pointer = head;
+        for (int i=0; i < size; i++) {
+            array[i] = pointer;
+            pointer = pointer.next;
+        }
+        return array;
+    }
+
+    /**
+     * This method rebuild the .prev and .next given an array containing all the SNodes from this Doubly Linked List.
+     * @param arr Input any array that contains the SNodes, regardless of the order in the array.
+     */
+    private void rebuildPointers(SNode[] arr) {
+        if (arr.length != size) {
+            throw new IllegalArgumentException("The input array must be the same size than the DLinkedList");
+        }
+        head = arr[0];
+        tail = arr[size-1];
+
+        head.prev = null;
+        head.next = arr[1];
+
+        tail.next = null;
+        tail.prev = arr[size-2];
+
+        for (int i=1; i < size-1; i++) {
+            arr[i].prev = arr[i-1];
+            arr[i].next = arr[i+1];
         }
     }
 
