@@ -302,7 +302,7 @@ public class DLinkedList {
      * @param arr Input any array that contains the SNodes, regardless of the order in the array.
      */
     private void rebuildPointers(SNode[] arr) {
-        if (arr.length != size) {
+        if (arr.length != this.size) {
             throw new IllegalArgumentException("The input array must be the same size than the DLinkedList");
         }
         head = arr[0];
@@ -558,6 +558,90 @@ public class DLinkedList {
         }
         isSorted = true;
         return true;
+    }
+
+    /**
+     * This method sorts the current Linked List by size (from smallest to largest) using the merge sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * @return Returns true if the mergeSort() loops occurs, returns false if it does not reach the loop segment.
+     * @author Loic Duchesne
+     */
+    public boolean mergeSort() {
+        // Edge case handling. No sorting if size is 1 or less.
+        if (size <= 1) {
+            return false;
+        }
+        SNode[] arr = toArray();
+        List<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
+
+        arrl = recursiveMergeSort(arrl);
+        arrl.toArray(arr);
+
+        rebuildPointers(arr);
+
+        isSorted = true;
+        return true;
+    }
+
+
+    // PRIVATE SORT HELPER METHODS
+
+    /**
+     * This private method is the necessary recursive statement for the {@link #mergeSort() mergeSort} method.
+     * @param arrl Takes an arrayList to be sorted as a parameter.
+     * @return Returns a sorted arrayList.
+     */
+    private List<SNode> recursiveMergeSort(List<SNode> arrl) {
+        int len = arrl.size();
+        if (len <= 1) {
+            return arrl;
+        }
+        int mid = len/2;
+
+        List<SNode> arrl1 = new ArrayList<>(arrl.subList(0, mid));
+        List<SNode> arrl2 = new ArrayList<>(arrl.subList(mid, len));
+
+        arrl1 = recursiveMergeSort(arrl1);
+        arrl2 = recursiveMergeSort(arrl2);
+
+        return merge(arrl1, arrl2);
+    }
+
+    /**
+     * This private method is necessary for {@link #mergeSort() mergeSort} and is used in its private recursive statement at {@link #recursiveMergeSort(List) recursiveMergeSort}.
+     * @param arrl1 First arrayList to be merged.
+     * @param arrl2 Second arrayList to be merged.
+     * @return Returns a merged (and sorted) arrayList.
+     */
+    private List<SNode> merge(List<SNode> arrl1, List<SNode> arrl2) {
+        int len1 = arrl1.size();
+        int len2 = arrl2.size();
+        int len = len1 + len2;
+
+        List<SNode> mergedList = new ArrayList<>(len);
+
+        int i1 = 0;
+        int i2 = 0;
+        for (int i=0; i<len; i++) {
+            if (i1 == len1) {
+                mergedList.addAll(arrl2.subList(i2, len2));
+                break;
+            }
+            if (i2 == len2) {
+                mergedList.addAll(arrl1.subList(i1, len1));
+                break;
+            }
+            int size1 = arrl1.get(i1).element.getSize();
+            int size2 = arrl2.get(i2).element.getSize();
+
+            if (size1 < size2) {
+                mergedList.add(i, arrl1.get(i1));
+                i1++;
+            } else {
+                mergedList.add(i, arrl2.get(i2));
+                i2++;
+            }
+        }
+        return mergedList;
     }
 
 
