@@ -1,20 +1,16 @@
 public class Shape {
-    private String shapeName;
+    private final String shapeName;
     // Size used for sorting algorithms to determine sorting order.
-    private int size;
+    private final int size;
 
     public Shape(String shapeName, int size) {
         this.shapeName = shapeName;
         this.size = size;
     }
 
-    public String getShapeName() {
-        return this.shapeName;
-    }
+    public String getShapeName() {return this.shapeName;}
 
-    public int getSize() {
-        return this.size;
-    }
+    public int getSize() {return this.size;}
 
     /**
      * Overrides the .equals method in Java Objects. Compare if a Shape is equal to another Shape (in terms of size and shape name).

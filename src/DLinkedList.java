@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Implementation of a basic Doubly Linked List meant for "Shape" custom object type.
  * @author Loic Duchesne
@@ -10,7 +14,12 @@ public class DLinkedList {
 
     // True if the current list is sorted. False if it is not.
     private boolean isSorted;
-    private class SNode {
+
+    public DLinkedList() {
+        this.isSorted = false;
+    }
+
+    public class SNode {
         Shape element;
         SNode next;
         SNode prev;
@@ -377,11 +386,67 @@ public class DLinkedList {
         }
     }
 
+    /**
+     * Search for a Shape in the list. This function checks in the list if a node contains a Shape of a certain size and name.
+     * If there is, it returns the node containing the shape.
+     *
+     * <br> Note: If there are more than one shape within the nodes, it will just return the first occurrence of that shape.
+     * @param shapeToFind Check if the shape is in the list.
+     * @return an SNode that contains the input size.
+     */
+    public SNode searchShape(Shape shapeToFind) {
+        if (isSorted) {
+            SNode[] arr = toArray();
+            ArrayList<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
+
+            return binarySearchShape(arrl, shapeToFind);
+        } else {
+            SNode pointer = head;
+
+            while (pointer != null) {
+                if (pointer.element.equals(shapeToFind)) {
+                    return pointer;
+                }
+                pointer = pointer.next;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Use {@link #searchShape(Shape) searchShape} instead.
+     * @param arrl Takes an arraylist as input.
+     * @param shapeToFind Check if the shape is in the list.
+     * @return an SNode that contains the shape.
+     */
+    private SNode binarySearchShape(List<SNode> arrl, Shape shapeToFind) {
+        int lsize = arrl.size();
+        int index = lsize/2;
+        SNode currSNode = arrl.get(index);
+
+        // Base case and if no shape matches.
+        if (currSNode.element.equals(shapeToFind)) {
+            return currSNode;
+        } else if (lsize <= 1) {
+            return null;
+        }
+
+        // Recursion.
+        if (currSNode.element.getSize() < shapeToFind.getSize()) {
+            return binarySearchShape(arrl.subList(index+1, lsize), shapeToFind);
+        }
+        if (currSNode.element.getSize() > shapeToFind.getSize()) {
+            return binarySearchShape(arrl.subList(0, index), shapeToFind);
+        }
+        return null;
+    }
+
 
     // SORT OPERATIONS
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the bubble sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by size (from smallest to largest) using the bubble sort algorithm.
+     * It uses the private integer size stored in {@link Shape}.
      * @return Returns true if the bubbleSort loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -406,6 +471,7 @@ public class DLinkedList {
                 // Move the current pointer to the next element.
                 current = current.next;
             }
+            isSorted = true;
             return true;
         }
     }
@@ -454,6 +520,7 @@ public class DLinkedList {
                     pointer = pointer.next;
                 }
             }
+            isSorted = true;
             return true;
         }
     }
@@ -489,6 +556,7 @@ public class DLinkedList {
 
             sortedSize++;
         }
+        isSorted = true;
         return true;
     }
 
@@ -562,8 +630,7 @@ public class DLinkedList {
 
         System.out.println("Elements from 0 to n index:");
         while (pointer != null) {
-            System.out.println(pointer.element);
-            System.out.println(pointer.element.getShapeName());
+            System.out.println(pointer.element.getShapeName() + " | size = " + pointer.element.getSize());
 
             pointer = pointer.next;
         }
