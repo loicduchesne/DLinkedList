@@ -1,5 +1,6 @@
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -573,9 +574,28 @@ public class DLinkedList {
         SNode[] arr = toArray();
         List<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
 
-        arrl = recursiveMergeSort(arrl);
-        arrl.toArray(arr);
+        recursiveMergeSort(arrl).toArray(arr);
+        rebuildPointers(arr);
 
+        isSorted = true;
+        return true;
+    }
+
+    /**
+     * This method sorts the current Linked List by size (from smallest to largest) using the quick sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * It uses the median of 3 in the list as the pivot point.
+     * @return Returns true if the quickSort() loops occurs, returns false if it does not reach the loop segment.
+     * @author Loic Duchesne
+     */
+    public boolean quickSort() {
+        // Edge case handling. No sorting if size is 1 or less.
+        if (size <= 1) {
+            return false;
+        }
+        SNode[] arr = toArray();
+        List<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
+
+        compareSwap(arrl, medianOf3(arrl)).toArray(arr);
         rebuildPointers(arr);
 
         isSorted = true;
@@ -642,6 +662,63 @@ public class DLinkedList {
             }
         }
         return mergedList;
+    }
+
+    /**
+     * This private method is necessary for {@link #quickSort() quickSort} and is its primary recursive statement.
+     * @param arrl The arrayList to be sorted.
+     * @param pval The value of the pivot.
+     * @return Returns a sorted arrayList.
+     */
+    private List<SNode> compareSwap(List<SNode> arrl, int pval) {
+        int len = arrl.size();
+        if (len <= 1) {
+            return arrl;
+        }
+        int plow = 0;
+        int phigh = len-1;
+
+        while (!(plow > phigh)) {
+            if (arrl.get(plow).element.getSize() >= pval && arrl.get(phigh).element.getSize() <= pval) {
+                Collections.swap(arrl, plow, phigh);
+
+                plow++;
+                phigh--;
+            } else if (arrl.get(plow).element.getSize() >= pval) {
+                phigh--;
+            } else if (arrl.get(phigh).element.getSize() <= pval) {
+                plow++;
+            } else {
+                plow++;
+                phigh--;
+            }
+        }
+
+        List<SNode> arrl1 = new ArrayList<>(arrl.subList(0, plow));
+        List<SNode> arrl2 = new ArrayList<>(arrl.subList(plow, len));
+
+        arrl1 = compareSwap(arrl1, medianOf3(arrl1));
+        arrl2 = compareSwap(arrl2, medianOf3(arrl2));
+
+        arrl1.addAll(arrl2);
+
+        return arrl1;
+    }
+
+    /**
+     * This private method is used for {@link #quickSort() quickSort} if the pivot is defined as the median of 3.
+     * It picks 3 values in a given arrayList and calculates the median value.
+     * @param arrl The arrayList for which its median of 3 is to be obtained.
+     * @return Returns the median of 3 elements.
+     */
+    private int medianOf3(List<SNode> arrl) {
+        int len = arrl.size();
+
+        int i = arrl.get(0).element.getSize();
+        int j = arrl.get(len/2).element.getSize();
+        int k = arrl.get(len-1).element.getSize();
+
+        return (int) (i+j+k)/3;
     }
 
 
