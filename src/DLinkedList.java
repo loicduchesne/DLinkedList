@@ -8,8 +8,8 @@ import java.util.List;
  */
 
 public class DLinkedList<T extends WeightedObject<T>> {
-    private SNode head;
-    private SNode tail;
+    private Node head;
+    private Node tail;
     private int size;
 
     // True if the current list is sorted. False if it is not.
@@ -19,10 +19,10 @@ public class DLinkedList<T extends WeightedObject<T>> {
         this.isSorted = false;
     }
 
-    private class SNode {
+    private class Node {
         T element;
-        SNode next;
-        SNode prev;
+        Node next;
+        Node prev;
 
         /**
          * Overrides the .equals method in Java Objects. Compare if an SNode is equal to another SNode.
@@ -37,8 +37,8 @@ public class DLinkedList<T extends WeightedObject<T>> {
             } else if (!obj.getClass().getName().equals("SNode")) {
                 throw new IllegalArgumentException("Object to compare must be of type SNode");
             } else {
-                if (this.next == ((SNode) obj).next && this.prev == ((SNode) obj).prev) {
-                    return this.element.getWeight() == ((SNode) obj).element.getWeight();
+                if (this.next == ((Node) obj).next && this.prev == ((Node) obj).prev) {
+                    return this.element.getWeight() == ((Node) obj).element.getWeight();
                 }
             }
             return false;
@@ -48,7 +48,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
     // ELEMENT OPERATIONS (PUBLIC)
 
     public void addFirst(T elementToAdd) {
-        SNode newNode = new SNode();
+        Node newNode = new Node();
         newNode.element = elementToAdd;
 
         // Edge case.
@@ -71,7 +71,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
     }
 
     public T removeFirst() {
-        SNode temp = head;
+        Node temp = head;
 
         // Edge cases
         if (size == 0 ) {
@@ -96,7 +96,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
     }
 
     public void addLast(T elementToAdd) {
-        SNode newNode = new SNode();
+        Node newNode = new Node();
         newNode.element = elementToAdd;
 
         // Edge cases
@@ -105,7 +105,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
             tail = newNode;
         } else {
             // Using a pointer to point the old tail.
-            SNode pointer = tail;
+            Node pointer = tail;
 
             // Assigning the tail's next to the newNode.
             tail.next = newNode;
@@ -121,7 +121,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
     }
 
     public T removeLast() {
-        SNode temp = tail;
+        Node temp = tail;
 
         // Edge cases
         if (size == 0 ) {
@@ -153,7 +153,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param n2 The second input.
      * <br> *Note: the input orders does not matter.
      */
-    private void swapElements(SNode n1, SNode n2) {
+    private void swapElements(Node n1, Node n2) {
         if (n1 == null || n2 == null) {
             throw new IllegalArgumentException("One or both of the input nodes are null.");
         }
@@ -176,13 +176,13 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * <br> Note: If you leave moveRight and addLeft blank, their default values are both True. You cannot leave only 1 blank.
      * @return Returns true if it successfully moved the node. Return false if it did not move the node.
      */
-    private boolean moveNode(SNode nodeToMove, SNode boundaryNode, boolean moveRight, boolean addLeft) {
+    private boolean moveNode(Node nodeToMove, Node boundaryNode, boolean moveRight, boolean addLeft) {
         if (size == 0) {
             throw new NullPointerException("Cannot move Node because there is no elements in the list");
         } else if (nodeToMove == null || boundaryNode == null) {
             throw new IllegalArgumentException("nodeToMove or boundaryNode must both be non-null values");
         }
-        SNode originalNode = nodeToMove;
+        Node originalNode = nodeToMove;
 
         if (moveRight) {
             while (true) {
@@ -244,13 +244,13 @@ public class DLinkedList<T extends WeightedObject<T>> {
     }
 
     // Second constructor for moveNode.
-    private boolean moveNode(SNode nodeToMove, SNode boundaryNode) {
+    private boolean moveNode(Node nodeToMove, Node boundaryNode) {
         if (size == 0) {
             throw new NullPointerException("Cannot move Node because there is no elements in the list");
         } else if (nodeToMove == null || boundaryNode == null) {
             throw new IllegalArgumentException("nodeToMove or boundaryNode must both be non-null values");
         }
-        SNode originalNode = nodeToMove;
+        Node originalNode = nodeToMove;
 
         while (true) {
             // If the node arrives at the tail.
@@ -280,14 +280,14 @@ public class DLinkedList<T extends WeightedObject<T>> {
     /**
      * This method returns the current Doubly Linked List with its nodes stored into an arrayList.
      */
-    private List<SNode> toArrayList() {
+    private List<Node> toArrayList() {
         // Edge case.
         if (head == null) {
             throw new ArrayIndexOutOfBoundsException("There is currently no nodes in the list.");
         }
-        List<SNode> arrl = new ArrayList<>(size);
+        List<Node> arrl = new ArrayList<>(size);
 
-        SNode pointer = head;
+        Node pointer = head;
         for (int i=0; i < size; i++) {
             arrl.add(i, pointer);
             pointer = pointer.next;
@@ -299,7 +299,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * This method rebuild the .prev and .next given an arrayList containing all the SNodes from this Doubly Linked List.
      * @param arrl Input any arrayList that contains the SNodes, regardless of the order in the arrayList.
      */
-    private void rebuildPointers(List<SNode> arrl) {
+    private void rebuildPointers(List<Node> arrl) {
         if (arrl.size() != this.size) {
             throw new IllegalArgumentException("The input array must be the same size than the DLinkedList");
         }
@@ -323,7 +323,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param nodeToRemove This is the node that you want to remove.
      * @return Returns the removed node element if it was successfully removed. Returns null if it was not.
      */
-    private T removeNode(SNode nodeToRemove) {
+    private T removeNode(Node nodeToRemove) {
         if (size == 0) {
             throw new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
         } else if (size == 1) {
@@ -363,13 +363,13 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param nodeToCheck The node to check if it is in the list.
      * @return Return true if there is an equal node in the list, returns false if not.
      */
-    private boolean nodeInList(SNode nodeToCheck) {
+    private boolean nodeInList(Node nodeToCheck) {
         if (size == 0) {
             return false;
         } if (size == 1) {
             return nodeToCheck.equals(head);
         } else {
-            SNode pointer = head;
+            Node pointer = head;
             while (pointer != null) {
                 if (nodeToCheck.equals(pointer)) {
                     return true;
@@ -388,13 +388,13 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param elementToFind Check if the element is in the list.
      * @return an SNode that contains that element.
      */
-    private SNode searchElement(T elementToFind) {
+    private Node searchElement(T elementToFind) {
         if (isSorted) {
-            List<SNode> arrl = toArrayList();
+            List<Node> arrl = toArrayList();
 
             return binarySearchElement(arrl, elementToFind);
         } else {
-            SNode pointer = head;
+            Node pointer = head;
 
             while (pointer != null) {
                 if (pointer.element.equals(elementToFind)) {
@@ -412,23 +412,23 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param elementToFind Check if the element is in the list.
      * @return an SNode that contains the element.
      */
-    private SNode binarySearchElement(List<SNode> arrl, T elementToFind) {
+    private Node binarySearchElement(List<Node> arrl, T elementToFind) {
         int lsize = arrl.size();
         int index = lsize/2;
-        SNode currSNode = arrl.get(index);
+        Node currNode = arrl.get(index);
 
         // Base case and if no weight matches.
-        if (currSNode.element.equals(elementToFind)) {
-            return currSNode;
+        if (currNode.element.equals(elementToFind)) {
+            return currNode;
         } else if (lsize <= 1) {
             return null;
         }
 
         // Recursion.
-        if (currSNode.element.getWeight() < elementToFind.getWeight()) {
+        if (currNode.element.getWeight() < elementToFind.getWeight()) {
             return binarySearchElement(arrl.subList(index+1, lsize), elementToFind);
         }
-        if (currSNode.element.getWeight() > elementToFind.getWeight()) {
+        if (currNode.element.getWeight() > elementToFind.getWeight()) {
             return binarySearchElement(arrl.subList(0, index), elementToFind);
         }
         return null;
@@ -448,8 +448,8 @@ public class DLinkedList<T extends WeightedObject<T>> {
         if (size <= 1) {
             return false;
         }  else {
-            SNode sortedIndex = tail;
-            SNode current = head;
+            Node sortedIndex = tail;
+            Node current = head;
 
             while (head != sortedIndex) {
                 // When the current node arrives at the end.
@@ -480,13 +480,13 @@ public class DLinkedList<T extends WeightedObject<T>> {
         if (size <= 1) {
             return false;
         } else {
-            SNode pointer = head; // Points to the current position for the loop.
-            SNode sortedIndex = head; // Node right after the sorted list.
+            Node pointer = head; // Points to the current position for the loop.
+            Node sortedIndex = head; // Node right after the sorted list.
             int unsortedSize = size; // Amount of unsorted elements left.
 
             // While the sorted index is not at the end.
             while (sortedIndex.next != null) {
-                SNode smallest = sortedIndex; // Smallest node in the current unsorted set of nodes.
+                Node smallest = sortedIndex; // Smallest node in the current unsorted set of nodes.
 
                 // Runs a loop n times of how many elements n are left.
                 for (int i=0; i<unsortedSize; i++) {
@@ -531,8 +531,8 @@ public class DLinkedList<T extends WeightedObject<T>> {
             return false;
         }
         // Set the first element in the unsorted list as the first element in the sorted list.
-        SNode sortedIndex = head.next;
-        SNode current = head.next;
+        Node sortedIndex = head.next;
+        Node current = head.next;
         int sortedSize = 1;
 
         // Iterate over all the n elements.
@@ -566,7 +566,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
         if (size <= 1) {
             return false;
         }
-        List<SNode> arrl = toArrayList();
+        List<Node> arrl = toArrayList();
         rebuildPointers(recursiveMergeSort(arrl));
 
         isSorted = true;
@@ -585,7 +585,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
         if (size <= 1) {
             return false;
         }
-        List<SNode> arrl = toArrayList();
+        List<Node> arrl = toArrayList();
 
         rebuildPointers(compareSwap(arrl, medianOf3(arrl)));
 
@@ -601,15 +601,15 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param arrl Takes an arrayList to be sorted as a parameter.
      * @return Returns a sorted arrayList.
      */
-    private List<SNode> recursiveMergeSort(List<SNode> arrl) {
+    private List<Node> recursiveMergeSort(List<Node> arrl) {
         int len = arrl.size();
         if (len <= 1) {
             return arrl;
         }
         int mid = len/2;
 
-        List<SNode> arrl1 = new ArrayList<>(arrl.subList(0, mid));
-        List<SNode> arrl2 = new ArrayList<>(arrl.subList(mid, len));
+        List<Node> arrl1 = new ArrayList<>(arrl.subList(0, mid));
+        List<Node> arrl2 = new ArrayList<>(arrl.subList(mid, len));
 
         arrl1 = recursiveMergeSort(arrl1);
         arrl2 = recursiveMergeSort(arrl2);
@@ -623,12 +623,12 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param arrl2 Second arrayList to be merged.
      * @return Returns a merged (and sorted) arrayList.
      */
-    private List<SNode> merge(List<SNode> arrl1, List<SNode> arrl2) {
+    private List<Node> merge(List<Node> arrl1, List<Node> arrl2) {
         int len1 = arrl1.size();
         int len2 = arrl2.size();
         int len = len1 + len2;
 
-        List<SNode> mergedList = new ArrayList<>(len);
+        List<Node> mergedList = new ArrayList<>(len);
 
         int i1 = 0;
         int i2 = 0;
@@ -661,7 +661,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param pval The value of the pivot.
      * @return Returns a sorted arrayList.
      */
-    private List<SNode> compareSwap(List<SNode> arrl, int pval) {
+    private List<Node> compareSwap(List<Node> arrl, int pval) {
         int len = arrl.size();
         if (len <= 1) {
             return arrl;
@@ -685,8 +685,8 @@ public class DLinkedList<T extends WeightedObject<T>> {
             }
         }
 
-        List<SNode> arrl1 = new ArrayList<>(arrl.subList(0, plow));
-        List<SNode> arrl2 = new ArrayList<>(arrl.subList(plow, len));
+        List<Node> arrl1 = new ArrayList<>(arrl.subList(0, plow));
+        List<Node> arrl2 = new ArrayList<>(arrl.subList(plow, len));
 
         arrl1 = compareSwap(arrl1, medianOf3(arrl1));
         arrl2 = compareSwap(arrl2, medianOf3(arrl2));
@@ -702,7 +702,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param arrl The arrayList for which its median of 3 is to be obtained.
      * @return Returns the median of 3 elements.
      */
-    private int medianOf3(List<SNode> arrl) {
+    private int medianOf3(List<Node> arrl) {
         int len = arrl.size();
 
         int i = arrl.get(0).element.getWeight();
@@ -722,8 +722,8 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @author Loic Duchesne
      */
     public boolean detectLoop() {
-        SNode pointerSlow = head;
-        SNode pointerFast = head.next;
+        Node pointerSlow = head;
+        Node pointerFast = head.next;
 
         // Edge case if pointer is null (e.g. list is empty).
         if (pointerSlow == null) {
@@ -778,7 +778,7 @@ public class DLinkedList<T extends WeightedObject<T>> {
     // PRINT METHODS & DEBUGS
 
     public void printElements() {
-        SNode pointer = head;
+        Node pointer = head;
 
         System.out.println("----------------------------");
         System.out.println("Elements from 0 to n index:");
@@ -801,10 +801,10 @@ public class DLinkedList<T extends WeightedObject<T>> {
      * @param nodeToMove The node that you want to move.
      * @param nodeBefore The node before the new location. Write "null" if you want to move the node before the head.
      * @param nodeAfter The node after the new location. Write "null" if you want to move the node after the tail.
-     * @deprecated As of 2022/11/04, because it was inefficient and buggy. Use {@link #moveNode(SNode, SNode)} instead.
+     * @deprecated As of 2022/11/04, because it was inefficient and buggy. Use {@link #moveNode(Node, Node)} instead.
      */
     @Deprecated
-    private boolean DEPRECATEDmoveNode(SNode nodeToMove, SNode nodeBefore, SNode nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
+    private boolean DEPRECATEDmoveNode(Node nodeToMove, Node nodeBefore, Node nodeAfter) { //note: nodeToMove will be moved in between nodeBefore & nodeAfter
         if (size == 0) {
             throw new NullPointerException("Cannot move Node because there is no elements in the list");
         } else if (size < 3) {
@@ -865,9 +865,9 @@ public class DLinkedList<T extends WeightedObject<T>> {
         if (size <= 1) {
             return false;
         } else {
-            SNode sortedIndex = head.next;
-            SNode current = head.next;
-            SNode pointer = sortedIndex.prev;
+            Node sortedIndex = head.next;
+            Node current = head.next;
+            Node pointer = sortedIndex.prev;
             int sortedSize = 1;
 
             while (sortedSize < size) {
