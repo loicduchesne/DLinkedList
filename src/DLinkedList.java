@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +7,7 @@ import java.util.List;
  * @author Loic Duchesne
  */
 
-public class DLinkedList {
+public class DLinkedList<T extends WeightedObject<T>> {
     private SNode head;
     private SNode tail;
     private int size;
@@ -21,7 +20,7 @@ public class DLinkedList {
     }
 
     private class SNode {
-        Shape element;
+        T element;
         SNode next;
         SNode prev;
 
@@ -35,13 +34,11 @@ public class DLinkedList {
             // Edge case can compare two null objects.
             if (obj == null) {
                 return false;
-            } else if (!(obj instanceof SNode)) {
+            } else if (!obj.getClass().getName().equals("SNode")) {
                 throw new IllegalArgumentException("Object to compare must be of type SNode");
             } else {
                 if (this.next == ((SNode) obj).next && this.prev == ((SNode) obj).prev) {
-                    if (this.element.getShapeName().equals(((SNode) obj).element.getShapeName())) {
-                        return this.element.getSize() == ((SNode) obj).element.getSize();
-                    }
+                    return this.element.getWeight() == ((SNode) obj).element.getWeight();
                 }
             }
             return false;
@@ -50,7 +47,7 @@ public class DLinkedList {
 
     // ELEMENT OPERATIONS (PUBLIC)
 
-    public void addFirst(Shape elementToAdd) {
+    public void addFirst(T elementToAdd) {
         SNode newNode = new SNode();
         newNode.element = elementToAdd;
 
@@ -73,7 +70,7 @@ public class DLinkedList {
         isSorted = false;
     }
 
-    public Shape removeFirst() {
+    public T removeFirst() {
         SNode temp = head;
 
         // Edge cases
@@ -98,7 +95,7 @@ public class DLinkedList {
         return temp.element;
     }
 
-    public void addLast(Shape elementToAdd) {
+    public void addLast(T elementToAdd) {
         SNode newNode = new SNode();
         newNode.element = elementToAdd;
 
@@ -123,7 +120,7 @@ public class DLinkedList {
         isSorted = false;
     }
 
-    public Shape removeLast() {
+    public T removeLast() {
         SNode temp = tail;
 
         // Edge cases
@@ -161,7 +158,7 @@ public class DLinkedList {
             throw new IllegalArgumentException("One or both of the input nodes are null.");
         }
         // Temporary element pointer to refer to n1's element.
-        Shape temp = n1.element;
+        T temp = n1.element;
 
         // Swapping the elements.
         n1.element = n2.element;
@@ -281,43 +278,43 @@ public class DLinkedList {
     }
 
     /**
-     * This method returns the current Doubly Linked List with its nodes stored into an array.
+     * This method returns the current Doubly Linked List with its nodes stored into an arrayList.
      */
-    private SNode[] toArray() {
+    private List<SNode> toArrayList() {
         // Edge case.
         if (head == null) {
             throw new ArrayIndexOutOfBoundsException("There is currently no nodes in the list.");
         }
-        SNode[] array = new SNode[size];
+        List<SNode> arrl = new ArrayList<>(size);
 
         SNode pointer = head;
         for (int i=0; i < size; i++) {
-            array[i] = pointer;
+            arrl.add(i, pointer);
             pointer = pointer.next;
         }
-        return array;
+        return arrl;
     }
 
     /**
-     * This method rebuild the .prev and .next given an array containing all the SNodes from this Doubly Linked List.
-     * @param arr Input any array that contains the SNodes, regardless of the order in the array.
+     * This method rebuild the .prev and .next given an arrayList containing all the SNodes from this Doubly Linked List.
+     * @param arrl Input any arrayList that contains the SNodes, regardless of the order in the arrayList.
      */
-    private void rebuildPointers(SNode[] arr) {
-        if (arr.length != this.size) {
+    private void rebuildPointers(List<SNode> arrl) {
+        if (arrl.size() != this.size) {
             throw new IllegalArgumentException("The input array must be the same size than the DLinkedList");
         }
-        head = arr[0];
-        tail = arr[size-1];
+        head = arrl.get(0);
+        tail = arrl.get(size-1);
 
         head.prev = null;
-        head.next = arr[1];
+        head.next = arrl.get(1);
 
         tail.next = null;
-        tail.prev = arr[size-2];
+        tail.prev = arrl.get(size-2);
 
         for (int i=1; i < size-1; i++) {
-            arr[i].prev = arr[i-1];
-            arr[i].next = arr[i+1];
+            arrl.get(i).prev = arrl.get(i-1);
+            arrl.get(i).next = arrl.get(i+1);
         }
     }
 
@@ -326,7 +323,7 @@ public class DLinkedList {
      * @param nodeToRemove This is the node that you want to remove.
      * @return Returns the removed node element if it was successfully removed. Returns null if it was not.
      */
-    private Shape removeNode(SNode nodeToRemove) {
+    private T removeNode(SNode nodeToRemove) {
         if (size == 0) {
             throw new IllegalArgumentException("There is no element to remove because there is no elements in the list.");
         } else if (size == 1) {
@@ -373,14 +370,10 @@ public class DLinkedList {
             return nodeToCheck.equals(head);
         } else {
             SNode pointer = head;
-            boolean checkInList = true;
-
             while (pointer != null) {
-
                 if (nodeToCheck.equals(pointer)) {
                     return true;
                 }
-
                 pointer = pointer.next;
             }
             return false;
@@ -388,24 +381,23 @@ public class DLinkedList {
     }
 
     /**
-     * Search for a Shape in the list. This function checks in the list if a node contains a Shape of a certain size and name.
-     * If there is, it returns the node containing the shape.
+     * Search for an element in the list. This function checks in the list if a node contains an Element of a certain weight.
+     * If there is, it returns the node containing the element.
      *
-     * <br> Note: If there are more than one shape within the nodes, it will just return the first occurrence of that shape.
-     * @param shapeToFind Check if the shape is in the list.
-     * @return an SNode that contains the input size.
+     * <br> Note: If there are more than one element within the nodes, it will just return the first occurrence of that element.
+     * @param elementToFind Check if the element is in the list.
+     * @return an SNode that contains that element.
      */
-    private SNode searchShape(Shape shapeToFind) {
+    private SNode searchElement(T elementToFind) {
         if (isSorted) {
-            SNode[] arr = toArray();
-            ArrayList<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
+            List<SNode> arrl = toArrayList();
 
-            return binarySearchShape(arrl, shapeToFind);
+            return binarySearchElement(arrl, elementToFind);
         } else {
             SNode pointer = head;
 
             while (pointer != null) {
-                if (pointer.element.equals(shapeToFind)) {
+                if (pointer.element.equals(elementToFind)) {
                     return pointer;
                 }
                 pointer = pointer.next;
@@ -415,29 +407,29 @@ public class DLinkedList {
     }
 
     /**
-     * Use {@link #searchShape(Shape) searchShape} instead.
+     * Use {@link #searchElement(T) searchElement} instead.
      * @param arrl Takes an arraylist as input.
-     * @param shapeToFind Check if the shape is in the list.
-     * @return an SNode that contains the shape.
+     * @param elementToFind Check if the element is in the list.
+     * @return an SNode that contains the element.
      */
-    private SNode binarySearchShape(List<SNode> arrl, Shape shapeToFind) {
+    private SNode binarySearchElement(List<SNode> arrl, T elementToFind) {
         int lsize = arrl.size();
         int index = lsize/2;
         SNode currSNode = arrl.get(index);
 
-        // Base case and if no shape matches.
-        if (currSNode.element.equals(shapeToFind)) {
+        // Base case and if no weight matches.
+        if (currSNode.element.equals(elementToFind)) {
             return currSNode;
         } else if (lsize <= 1) {
             return null;
         }
 
         // Recursion.
-        if (currSNode.element.getSize() < shapeToFind.getSize()) {
-            return binarySearchShape(arrl.subList(index+1, lsize), shapeToFind);
+        if (currSNode.element.getWeight() < elementToFind.getWeight()) {
+            return binarySearchElement(arrl.subList(index+1, lsize), elementToFind);
         }
-        if (currSNode.element.getSize() > shapeToFind.getSize()) {
-            return binarySearchShape(arrl.subList(0, index), shapeToFind);
+        if (currSNode.element.getWeight() > elementToFind.getWeight()) {
+            return binarySearchElement(arrl.subList(0, index), elementToFind);
         }
         return null;
     }
@@ -446,8 +438,8 @@ public class DLinkedList {
     // SORT OPERATIONS
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the bubble sort algorithm.
-     * It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by weight (from smallest to largest) using the bubble sort algorithm.
+     * It uses the interfaced weight from {@link WeightedObject}.
      * @return Returns true if the bubbleSort loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -466,7 +458,7 @@ public class DLinkedList {
                     sortedIndex = sortedIndex.prev;
                 }
                 // Compare element sizes.
-                if (current.element.getSize() > current.next.element.getSize()) {
+                if (current.element.getWeight() > current.next.element.getWeight()) {
                     swapElements(current, current.next);
                 }
                 // Move the current pointer to the next element.
@@ -478,7 +470,8 @@ public class DLinkedList {
     }
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the selection sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by weight (from smallest to largest) using the selection sort algorithm.
+     * It uses the interfaced weight from {@link WeightedObject}.
      * @return Returns true if the selectionSort() loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -499,7 +492,7 @@ public class DLinkedList {
                 for (int i=0; i<unsortedSize; i++) {
 
                     // If the pointer node size is smaller than the current registered smallest, reassign smallest to pointer.
-                    if (pointer.element.getSize() < smallest.element.getSize()) {
+                    if (pointer.element.getWeight() < smallest.element.getWeight()) {
                         smallest = pointer;
                     }
 
@@ -527,7 +520,8 @@ public class DLinkedList {
     }
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the insertion sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by weight (from smallest to largest) using the insertion sort algorithm.
+     * It uses the interfaced weight from {@link WeightedObject}.
      * @return Returns true if the insertionSort() loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -544,9 +538,9 @@ public class DLinkedList {
         // Iterate over all the n elements.
         while (sortedSize < size) {
 
-            // Iterate over the sorted elements size. Prevents null pointer.
+            // Iterate over the sorted elements weight. Prevents null pointer.
             for (int i=0; i < sortedSize; i++) {
-                if (current.prev == null || current.prev.element.getSize() <= current.element.getSize()) {
+                if (current.prev == null || current.prev.element.getWeight() <= current.element.getWeight()) {
                     break; // Break if at the head or if it finds an element smaller in the sorted elements.
                 }
                 swapElements(current, current.prev); // Swap the current element to its previous (until find match).
@@ -562,7 +556,8 @@ public class DLinkedList {
     }
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the merge sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by weight (from smallest to largest) using the merge sort algorithm.
+     * It uses the interfaced weight from {@link WeightedObject}.
      * @return Returns true if the mergeSort() loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
      */
@@ -571,18 +566,16 @@ public class DLinkedList {
         if (size <= 1) {
             return false;
         }
-        SNode[] arr = toArray();
-        List<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
-
-        recursiveMergeSort(arrl).toArray(arr);
-        rebuildPointers(arr);
+        List<SNode> arrl = toArrayList();
+        rebuildPointers(recursiveMergeSort(arrl));
 
         isSorted = true;
         return true;
     }
 
     /**
-     * This method sorts the current Linked List by size (from smallest to largest) using the quick sort algorithm. It uses the private integer size stored in {@link Shape}.
+     * This method sorts the current Linked List by weight (from smallest to largest) using the quick sort algorithm.
+     * It uses the interfaced weight from {@link WeightedObject}.
      * It uses the median of 3 in the list as the pivot point.
      * @return Returns true if the quickSort() loops occurs, returns false if it does not reach the loop segment.
      * @author Loic Duchesne
@@ -592,11 +585,9 @@ public class DLinkedList {
         if (size <= 1) {
             return false;
         }
-        SNode[] arr = toArray();
-        List<SNode> arrl = new ArrayList<>(Arrays.asList(arr));
+        List<SNode> arrl = toArrayList();
 
-        compareSwap(arrl, medianOf3(arrl)).toArray(arr);
-        rebuildPointers(arr);
+        rebuildPointers(compareSwap(arrl, medianOf3(arrl)));
 
         isSorted = true;
         return true;
@@ -650,8 +641,8 @@ public class DLinkedList {
                 mergedList.addAll(arrl1.subList(i1, len1));
                 break;
             }
-            int size1 = arrl1.get(i1).element.getSize();
-            int size2 = arrl2.get(i2).element.getSize();
+            int size1 = arrl1.get(i1).element.getWeight();
+            int size2 = arrl2.get(i2).element.getWeight();
 
             if (size1 < size2) {
                 mergedList.add(i, arrl1.get(i1));
@@ -679,14 +670,14 @@ public class DLinkedList {
         int phigh = len-1;
 
         while (!(plow > phigh)) {
-            if (arrl.get(plow).element.getSize() >= pval && arrl.get(phigh).element.getSize() <= pval) {
+            if (arrl.get(plow).element.getWeight() >= pval && arrl.get(phigh).element.getWeight() <= pval) {
                 Collections.swap(arrl, plow, phigh);
 
                 plow++;
                 phigh--;
-            } else if (arrl.get(plow).element.getSize() >= pval) {
+            } else if (arrl.get(plow).element.getWeight() >= pval) {
                 phigh--;
-            } else if (arrl.get(phigh).element.getSize() <= pval) {
+            } else if (arrl.get(phigh).element.getWeight() <= pval) {
                 plow++;
             } else {
                 plow++;
@@ -714,9 +705,9 @@ public class DLinkedList {
     private int medianOf3(List<SNode> arrl) {
         int len = arrl.size();
 
-        int i = arrl.get(0).element.getSize();
-        int j = arrl.get(len/2).element.getSize();
-        int k = arrl.get(len-1).element.getSize();
+        int i = arrl.get(0).element.getWeight();
+        int j = arrl.get(len/2).element.getWeight();
+        int k = arrl.get(len-1).element.getWeight();
 
         return (int) (i+j+k)/3;
     }
@@ -789,39 +780,16 @@ public class DLinkedList {
     public void printElements() {
         SNode pointer = head;
 
+        System.out.println("----------------------------");
         System.out.println("Elements from 0 to n index:");
         while (pointer != null) {
-            System.out.println(pointer.element.getShapeName() + " | size = " + pointer.element.getSize());
+            System.out.println(pointer.element.toString());
 
             pointer = pointer.next;
         }
         System.out.println("----------------------------");
     }
 
-    public void printElementSizes() {
-        SNode pointer = head;
-
-        System.out.println("Object sizes from 0 to n index:");
-        for (int i=0; i<size; i++) {
-            System.out.println(pointer.element.getSize());
-
-            pointer = pointer.next;
-        }
-        System.out.println("----------------------------");
-    }
-
-    public void debugPrint() {
-        SNode pointer = head;
-
-        System.out.println("----------------------------");
-        while (pointer != null) {
-            System.out.println(pointer.element);
-            System.out.println(pointer.element.getSize());
-
-            pointer = pointer.next;
-        }
-        System.out.println("----------------------------");
-    }
 
     // DEPRECATED METHODS
     // *These are broken/old methods that are either not working or not implemented properly. Keeping them for archive purposes.
@@ -917,7 +885,7 @@ public class DLinkedList {
                         sortedSize++;
 
                         compareSortedCurrent = false;
-                    } else if (pointer.element.getSize() <= current.element.getSize()) {
+                    } else if (pointer.element.getWeight() <= current.element.getWeight()) {
                         moveNode(current, pointer, false, false);
 
                         sortedSize++;
